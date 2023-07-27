@@ -1,0 +1,48 @@
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:background="#FFEB3B"
+        android:orientation="horizontal"
+        android:padding="8dp">
+    <ImageView
+        android:id="@+id/ivHinhAnh"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@mipmap/ic_launcher" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/tvname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:textSize="20dp"
+            android:textStyle="bold"
+            android:textColor="#E30F0F"
+            android:text="Tên" />
+
+        <TextView
+            android:id="@+id/tvauthor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#E91E63"
+            android:layout_marginTop="5dp"
+            android:text="Tác giả" />
+
+        <!-- Mau -->
+        <TextView
+            android:id="@+id/tvyear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#2196F3"
+            android:layout_marginTop="5dp"
+            android:text="năm xuất bản" />
+    </LinearLayout>
+
+
+</LinearLayout>
