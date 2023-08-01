@@ -64,24 +64,16 @@
             android:paddingEnd="18dp" />
     </LinearLayout>
 
-    <HorizontalScrollView
-        android:id="@+id/productScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="400dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="15dp"
-        android:fillViewport="true"
-        android:scrollbars="none">
-
         <LinearLayout
             android:id="@+id/productContainer"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="50dp"
             android:orientation="horizontal">
-            <!-- Product items go here -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/idRCVH"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
         </LinearLayout>
-
-    </HorizontalScrollView>
 
 </LinearLayout>

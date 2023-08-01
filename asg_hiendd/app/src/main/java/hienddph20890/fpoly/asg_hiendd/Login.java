@@ -94,9 +94,28 @@ public class Login extends AppCompatActivity {
                         new Response.Listener<JSONObject>() {
                             @Override
                             public void onResponse(JSONObject response) {
-                                Toast.makeText(Login.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(Login.this, MainActivity.class);
-                                startActivity(intent);
+
+                                try {
+                                    // Get the user object from the server response
+                                    JSONObject userObj = response.getJSONObject("user");
+
+                                    // Retrieve id and fullname from the user object
+                                    String userId = userObj.getString("_id");
+                                    String userFullname = userObj.getString("fullname");
+                                    String userEmail = userObj.getString("email");
+                                    boolean isAdmin = userObj.getBoolean("admin");
+                                    // Create an Intent to launch MainActivity and pass the data
+                                    Intent intent = new Intent(Login.this, MainActivity.class);
+                                    intent.putExtra("userId", userId);
+                                    intent.putExtra("userFullname", userFullname);
+                                    intent.putExtra("userEmail", userEmail);
+                                    intent.putExtra("isAdmin", isAdmin); // Lưu giá trị isAdmin vào Intent
+
+                                    startActivity(intent);
+                                    Toast.makeText(Login.this, "Đăng Nhập Thành công", Toast.LENGTH_SHORT).show();
+                                }catch (Exception e){
+                                    e.printStackTrace();
+                                }
                             }
                         },
                         new Response.ErrorListener() {

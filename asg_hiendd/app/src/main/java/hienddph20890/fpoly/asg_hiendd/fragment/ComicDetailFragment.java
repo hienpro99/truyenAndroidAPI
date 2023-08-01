@@ -28,6 +28,7 @@ import com.android.volley.toolbox.Volley;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import hienddph20890.fpoly.asg_hiendd.MainActivity;
@@ -36,8 +37,11 @@ import hienddph20890.fpoly.asg_hiendd.addapter.CommentAdapter;
 import hienddph20890.fpoly.asg_hiendd.model.Comment;
 import hienddph20890.fpoly.asg_hiendd.model.Truyen;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class ComicDetailFragment extends Fragment {
     private TextView tvName, tvDescription, tvAuthor, tvYearPublished;
@@ -59,6 +63,10 @@ public class ComicDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Boolean isAdmin = getArguments().getBoolean("isAdmin");
+        String userId = getArguments().getString("userId");
+        selectedComic = (Truyen) getArguments().getSerializable("truyen");
+        comicId = getArguments().getString("comicId");
         tvName = view.findViewById(R.id.tvName);
         tvDescription = view.findViewById(R.id.tvDescription);
         tvAuthor = view.findViewById(R.id.tvAuthor);
@@ -71,8 +79,35 @@ public class ComicDetailFragment extends Fragment {
         Toast.makeText(getContext(), "Đang ở chi tiết Truyện", Toast.LENGTH_SHORT).show();
         commentList = new ArrayList<>();
         // Khởi tạo Adapter cho ListView
-        commentAdapter = new CommentAdapter(requireContext(), commentList);
+        commentAdapter = new CommentAdapter(requireContext(), commentList,isAdmin,comicId,userId);
+        ///bắt sự kiện để sửa comment
+        commentAdapter.setOnCommentEditListener(new CommentAdapter.OnCommentEditListener() {
+            @Override
+            public void onCommentEdit(Comment comment) {
+                Bundle bundle = getArguments();
+                String userId = bundle.getString("userId");
+                if (userId.equals(comment.getUserId())) {
+                    etComment.setText(comment.getContent());
+                    btnPostComment.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String updatedContent = etComment.getText().toString().trim();
+                            if (TextUtils.isEmpty(updatedContent)) {
+                                Toast.makeText(getContext(), "Vui lòng nhập nội dung bình luận", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
 
+                            editComment(comicId, comment.get_id(), userId, updatedContent);
+                        }
+                    });
+                } else {
+                    // If user IDs don't match, show an error message or handle the restriction as needed
+                    Toast.makeText(getContext(), "Bạn không có quyền chỉnh sửa bình luận này", Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+        });
         // Set Adapter cho ListView
         commentListView.setAdapter(commentAdapter);
 
@@ -87,6 +122,7 @@ public class ComicDetailFragment extends Fragment {
             fetchComicDetails(URL_GET_COMIC_DETAIL);
         }
 
+
         btnPostComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,8 +134,66 @@ public class ComicDetailFragment extends Fragment {
                     Toast.makeText(getContext(), "Vui lòng nhập nội dung bình luận", Toast.LENGTH_SHORT).show();
                     return;
                 }
+
+                // Lấy dữ liệu từ Bundle
+                Bundle bundle = getArguments();
+                if (bundle != null) {
+                    String userId = bundle.getString("userId");
+                    String userFullname = bundle.getString("userFullname");
+                    Boolean isAdmin = getArguments().getBoolean("isAdmin"); // Giá trị mặc định nếu không có giá trị "isAdmin" trong Intent
+                    comicId = getArguments().getString("comicId"); // Lấy id truyện từ selectedComic (nếu có)
+                    Toast.makeText(getContext(), userId+"Với"+userFullname+"với"+comicId+""+isAdmin, Toast.LENGTH_SHORT).show();
+                    // Kiểm tra xem đã có id truyện chưa
+                    if (TextUtils.isEmpty(comicId)) {
+                        Toast.makeText(getContext(), "Không có ID truyện", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Tạo JSON object để lưu thông tin bình luận
+                    JSONObject commentJson = new JSONObject();
+                    try {
+                        commentJson.put("userId", userId);
+                        commentJson.put("fullname", userFullname);
+                        commentJson.put("content", commentContent);
+                        // Để có createdAt theo ngày giờ hiện tại, bạn có thể sử dụng một thư viện để đơn giản hóa việc xử lý ngày tháng
+                        // Ví dụ sử dụng thư viện SimpleDateFormat để lấy ngày giờ hiện tại
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
+                        String createdAt = sdf.format(new Date());
+                        commentJson.put("createdAt", createdAt);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Toast.makeText(getContext(), "Error creating comment JSON", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Tạo một request POST lên server để thêm bình luận
+                    String URL_POST_COMMENT = "http://192.168.1.8:3000/comics/" + comicId + "/comment";
+                    RequestQueue requestQueue = Volley.newRequestQueue(requireContext());
+                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, URL_POST_COMMENT, commentJson,
+                            new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    // Bình luận được thêm thành công, cập nhật lại danh sách bình luận
+                                    Toast.makeText(getContext(), "Thêm bình luận thành công", Toast.LENGTH_SHORT).show();
+                                    etComment.setText(""); // Xóa nội dung bình luận trong EditText sau khi gửi thành công
+                                    fetchComicComments(comicId); // Gọi lại phương thức để lấy danh sách bình luận mới
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Toast.makeText(getContext(), "Error posting comment" + error.toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+
+                    // Thêm request vào hàng đợi
+                    requestQueue.add(request);
+                }
             }
         });
+
+
+
 
 
         btnViewTruyen.setOnClickListener(new View.OnClickListener() {
@@ -127,6 +221,47 @@ public class ComicDetailFragment extends Fragment {
         });
 
     }
+    private void editComment(String comicId, String commentId, String userId, String newContent) {
+        // Tạo JSON object để lưu thông tin chỉnh sửa bình luận
+        JSONObject commentJson = new JSONObject();
+        try {
+            commentJson.put("userId", userId);
+            commentJson.put("content", newContent);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error creating comment JSON", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Tạo URL từ comicId và commentId
+        String URL_EDIT_COMMENT = "http://192.168.1.8:3000/comment/" + comicId + "/" + commentId;
+        // Tạo một request PUT lên server để chỉnh sửa bình luận
+        RequestQueue requestQueue = Volley.newRequestQueue(requireContext());
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.PUT, URL_EDIT_COMMENT, commentJson,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        // Bình luận được chỉnh sửa thành công, cập nhật lại danh sách bình luận
+                        Toast.makeText(getContext(), "Chỉnh sửa bình luận thành công", Toast.LENGTH_SHORT).show();
+                        etComment.setText("");
+                        // Gọi lại phương thức để lấy danh sách bình luận mới
+                        fetchComicComments(comicId);
+                        // Gọi lại Fragment để load lại dữ liệu
+                        FragmentTransaction ft = getParentFragmentManager().beginTransaction();
+                        ft.detach(ComicDetailFragment.this).attach(ComicDetailFragment.this).commit();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Toast.makeText(getContext(), "Error editing comment" + error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        // Thêm request vào hàng đợi
+        requestQueue.add(request);
+    }
+
 
     private void fetchComicDetails(String url) {
         RequestQueue requestQueue = Volley.newRequestQueue(requireContext());
@@ -194,10 +329,12 @@ public class ComicDetailFragment extends Fragment {
                             // Thêm các bình luận mới vào danh sách
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject commentObject = response.getJSONObject(i);
+                                String userId = commentObject.getString("userId");
+                                String id = commentObject.getString("_id");
                                 String fullname = commentObject.getString("fullname");
                                 String content = commentObject.getString("content");
                                 String createdAt = commentObject.getString("createdAt");
-                                Comment comment = new Comment(fullname, content, createdAt);
+                                Comment comment = new Comment(userId,fullname, content,id, createdAt);
                                 commentList.add(comment);
                             }
 

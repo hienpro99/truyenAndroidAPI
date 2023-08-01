@@ -1,100 +1,84 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="350dp"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="#CCB910"
-    android:padding="20dp">
-    <EditText
-        android:id="@+id/edMaSP"
+    android:layout_gravity="center">
+
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Mã sản phẩm"
-        android:textColor="#251E1E"
-        android:textColorHint="#808080"
-        android:padding="8dp"
-        android:layout_marginBottom="8dp"/>
-     <EditText
-     android:id="@+id/edTenSP"
-     android:layout_width="match_parent"
-     android:layout_height="wrap_content"
-         android:hint="Tên sản phẩm"
-      android:textColor="#251E1E"
-      android:textColorHint="#808080"
-      android:padding="8dp"
-      android:layout_marginBottom="8dp"/>
-    <EditText
-        android:id="@+id/edGiaSp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Giá sản phẩm"
-        android:textColor="#251E1E"
-        android:textColorHint="#808080"
-        android:padding="8dp"
-        android:layout_marginBottom="8dp"/>
+        android:text="Thêm Truyện"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:padding="16dp"
+        android:gravity="center" />
 
     <EditText
-        android:id="@+id/edLoaiSP"
+        android:id="@+id/edtName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Loại sản phẩm"
-        android:textColor="#251E1E"
-        android:textColorHint="#808080"
-        android:padding="8dp"
-        android:layout_marginBottom="8dp"/>
+        android:hint="Tên truyện"
+        android:padding="12dp"
+        android:layout_margin="10dp"/>
 
-<LinearLayout
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:orientation="horizontal"
-android:layout_marginBottom="16dp">
+    <EditText
+        android:id="@+id/edtDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mô tả"
+        android:padding="12dp"
+        android:layout_margin="10dp"/>
 
-<Button
-    android:id="@+id/buttonUploadImage"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Tải ảnh lên"
-    android:backgroundTint="#FF4081"
-    android:textColor="#FFFFFF"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-   android:layout_marginEnd="8dp"/>
-<ImageView
-    android:id="@+id/imageSP"
-    android:layout_width="80dp"
-    android:layout_height="80dp"
-    android:layout_marginStart="8dp"
-    android:src="@drawable/img" />
+    <EditText
+        android:id="@+id/edtAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tác giả"
+        android:padding="12dp"
+        android:layout_margin="10dp"/>
 
-</LinearLayout>
+    <EditText
+        android:id="@+id/edtYearPublished"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Năm xuất bản"
+        android:inputType="number"
+        android:padding="12dp"
+        android:layout_margin="10dp"/>
 
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="end">
+    <!-- Thêm trường nhập liệu cho URL hình ảnh -->
+    <EditText
+        android:id="@+id/edtImageUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="URL hình ảnh"
+        android:padding="12dp"
+        android:layout_margin="10dp"/>
 
-   <Button
-    android:id="@+id/btnSave"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Xác nhận"
-    android:backgroundTint="#0BCA34"
-    android:textColor="#FFFFFF"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:layout_marginEnd="8dp"/>
-
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rcvSelectedImages"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:orientation="horizontal"
+        android:padding="5dp"/>
     <Button
-    android:id="@+id/buttonCancel"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:text="Cancel"
-    android:backgroundTint="#BC0808"
-    android:textColor="#FFFFFF"
-    android:paddingStart="16dp"
-    android:paddingEnd="16dp"/>
+        android:id="@+id/btnAddComic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thêm Ảnh truyện"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_margin="10dp" />
+    <Button
+        android:id="@+id/btnSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Thêm truyện"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_margin="10dp" />
+
+
 
 </LinearLayout>
-
-    </LinearLayout>

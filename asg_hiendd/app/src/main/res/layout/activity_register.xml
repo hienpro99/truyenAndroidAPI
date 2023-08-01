@@ -35,7 +35,7 @@
         android:id="@+id/fullNameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Full Name"
+        android:hint="Họ Và Tên"
         android:padding="8dp"
         android:layout_marginBottom="8dp" />
 
@@ -43,7 +43,7 @@
         android:id="@+id/emailInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Your Email"
+        android:hint=" Email"
         android:inputType="textEmailAddress"
         android:padding="8dp"
         android:layout_marginBottom="8dp" />
@@ -51,7 +51,7 @@
         android:id="@+id/userNameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="User Name"
+        android:hint="Tên Đăng Nhập"
         android:inputType="textEmailAddress"
         android:padding="8dp"
         android:layout_marginBottom="8dp" />
@@ -60,7 +60,7 @@
         android:id="@+id/passwordInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
+        android:hint="Mật Khẩu"
         android:inputType="textPassword"
         android:padding="8dp"
         android:layout_marginBottom="8dp" />

@@ -1,6 +1,8 @@
 package hienddph20890.fpoly.asg_hiendd.addapter;
 
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -13,26 +15,63 @@ import hienddph20890.fpoly.asg_hiendd.fragment.SearchFragment;
 import hienddph20890.fpoly.asg_hiendd.fragment.UserFragment;
 
 public class TabAdapter extends FragmentPagerAdapter {
+    private Bundle userData; // Dữ liệu người dùng
+    private boolean isAdmin;
 
-    public TabAdapter(FragmentManager fm) {
-        super(fm);
+    public TabAdapter(FragmentManager fragmentManager) {
+        super(fragmentManager);
     }
+
+    public TabAdapter(FragmentManager fragmentManager, Bundle userData) {
+        super(fragmentManager);
+        this.userData = userData;
+        if (userData != null) {
+            this.isAdmin = userData.getBoolean("isAdmin", false);
+        }
+    }
+
 
     @NonNull
     @Override
     public Fragment getItem(int position) {
+        Fragment fragment = null;
         switch (position) {
             case 0:
-                return new HomeFragment();
+                fragment = new HomeFragment();
+                if (userData != null) {
+                    // Chỉ đặt dữ liệu cho SearchFragment
+                    fragment.setArguments(userData);
+                }
+                break;
             case 1:
-                return new SearchFragment();
+                fragment = new SearchFragment();
+                if (userData != null) {
+                    // Chỉ đặt dữ liệu cho SearchFragment
+                    fragment.setArguments(userData);
+                }
+                break;
             case 2:
-                return new CartFragment();
+                fragment = new CartFragment();
+                if (userData != null) {
+                    // Chỉ đặt dữ liệu cho SearchFragment
+                    fragment.setArguments(userData);
+                }
+                break;
             case 3:
-                return new UserFragment();
-            default:
-                return null;
+                fragment = new UserFragment();
+                if (userData != null) {
+                    // Chỉ đặt dữ liệu cho SearchFragment
+                    fragment.setArguments(userData);
+                }
+                break;
         }
+
+        // Nếu dữ liệu người dùng đã được đặt, chuyển nó xuống Fragment
+        if (userData != null) {
+            fragment.setArguments(userData);
+        }
+
+        return fragment;
     }
 
     @Override

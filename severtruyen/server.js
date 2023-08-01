@@ -125,7 +125,65 @@ app.post('/login', async(req, res) => {
         res.status(500).json({ error: 'Error logging in' });
     }
 });
-// API Xem Dữ liệu người dùng
+// API Đổi mật khẩu dựav trên sever
+app.put('/changepassword', requireLogin, async(req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const { currentPassword, newPassword } = req.body;
+
+        // Tìm người dùng trong cơ sở dữ liệu bằng userId
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Kiểm tra mật khẩu hiện tại có khớp hay không
+        if (currentPassword !== user.password) {
+            return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+
+        // Cập nhật mật khẩu mới
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ msg: 'Password changed successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Error changing password' });
+    }
+});
+// API Đổi mật khẩu dựa vào iduser và mật khẩu cũ được nhập theo body dưới client
+app.put('/changepasswords', async(req, res) => {
+    try {
+        const { userId, currentPassword, newPassword, confirmPassword } = req.body;
+
+        // Tìm người dùng trong cơ sở dữ liệu bằng userId
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Kiểm tra xác nhận mật khẩu cũ
+        if (currentPassword !== user.password) {
+            return res.status(401).json({ error: 'Current password is incorrect' });
+        }
+
+        // Kiểm tra xác nhận mật khẩu mới
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ error: 'New password and confirm password do not match' });
+        }
+
+        // Cập nhật mật khẩu mới
+        user.password = newPassword;
+        await user.save();
+
+        res.json({ msg: 'Password changed successfully' });
+    } catch (err) {
+        res.status(500).json({ error: 'Error changing password' });
+    }
+});
+
+
+// API Xem Dữ liệu người dùng server
 app.get('/listuser', requireLogin, async(req, res) => {
     try {
         const user = req.session.user;
@@ -146,8 +204,20 @@ app.get('/listuser', requireLogin, async(req, res) => {
         res.status(500).json({ error: 'Lỗi lấy dữ liệu' });
     }
 });
+// API Xem Dữ liệu người dùng client
+app.get('/listusers', async(req, res) => {
+    try {
 
-//API Thêm truyện mới
+        const arrUser = await User.find();
+
+        res.json({ account: arrUser });
+    } catch (error) {
+        console.error('Lỗi lấy dữ liệu', error);
+        res.status(500).json({ error: 'Lỗi lấy dữ liệu' });
+    }
+});
+
+//API Thêm truyện mới dùng postman
 app.post('/comics', upload.array('comicImages'), async(req, res) => {
     try {
         const { name, description, author, yearPublished } = req.body;
@@ -175,6 +245,26 @@ app.post('/comics', upload.array('comicImages'), async(req, res) => {
         res.status(500).json({ error: 'Failed to create comic' });
     }
 });
+// Định tuyến API thêm truyện mới dùng ở phía client
+app.post('/comic', async(req, res) => {
+    try {
+        const { name, description, author, yearPublished, images } = req.body;
+
+        const comic = new Comic({
+            name,
+            description,
+            author,
+            yearPublished: yearPublished,
+            coverImage: images[0],
+            images: images,
+        });
+        const savedComic = await comic.save();
+        res.status(201).json(savedComic);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to create comic' });
+    }
+});
+
 
 
 //API Lấy Tất Cả truyện
@@ -300,8 +390,41 @@ app.post('/comics/:id/comments', requireLogin, async(req, res) => {
         res.status(500).json({ error: 'Có lỗi xảy ra khi thêm bình luận' });
     }
 });
+//
+// API POST để thêm bình luận vào truyện dựa trên id truyện và nhập vào người dùng theo đăng nhập dưới client
+app.post('/comics/:id/comment', async(req, res) => {
+    try {
+        const comicId = req.params.id;
+        const { content, userId, fullname } = req.body; // Lấy thông tin userId và fullname từ request body
 
-// API chỉnh sửa comment theo id truyện và id bình luận
+        // Kiểm tra truyện tranh có tồn tại hay không
+        const existingComic = await Comic.findById(comicId);
+        if (!existingComic) {
+            return res.status(404).json({ error: 'Không tìm thấy truyện tranh' });
+        }
+        // Kiểm tra nội dung bình luận không được để trống
+        if (!content || content.trim() === '') {
+            return res.status(400).json({ error: 'Nội dung bình luận không được để trống' });
+        }
+
+        // Thêm bình luận vào mảng comments của truyện
+        existingComic.comments.push({
+            userId: userId,
+            fullname: fullname,
+            content: content,
+        });
+
+        // Lưu truyện cập nhật vào cơ sở dữ liệu
+        const updatedComic = await existingComic.save();
+
+        res.status(201).json(updatedComic);
+    } catch (error) {
+        res.status(500).json({ error: 'Có lỗi xảy ra khi thêm bình luận' });
+    }
+});
+
+
+// API chỉnh sửa comment theo id truyện và id bình luận trên sever
 app.put('/comments/:comicId/:commentId', requireLogin, async(req, res) => {
     const comicId = req.params.comicId;
     const commentId = req.params.commentId;
@@ -338,15 +461,55 @@ app.put('/comments/:comicId/:commentId', requireLogin, async(req, res) => {
         res.status(500).json({ error: 'Error updating comment' });
     }
 });
-// API Xóa Comment theo id truyện và id comment. chỉ có ADMIN MỚi xóa được truyện
+//API Sửa comment theo id truyện và id bình luận, kiểm tra userId của người
+//đăng nhập có trùng với userId của comment hay không dựa vào id được req từ body dưới client
+app.put('/comment/:comicId/:commentId', async(req, res) => {
+    const comicId = req.params.comicId;
+    const commentId = req.params.commentId;
+    const loggedInUserId = req.body.userId; // Lấy userId của người đăng nhập từ body
+
+    try {
+        const comic = await Comic.findById(comicId);
+        if (!comic) {
+            return res.status(404).json({ error: 'Truyện không tồn tại' });
+        }
+
+        const comment = comic.comments.find((c) => c._id.toString() === commentId);
+        if (!comment) {
+            return res.status(404).json({ error: 'Bình luận không tồn tại' });
+        }
+
+        // Kiểm tra xem userId của người đăng nhập có trùng với userId của comment hay không
+        if (loggedInUserId.toString() !== comment.userId.toString()) {
+            return res.status(403).json({ error: 'Bạn không có quyền sửa bình luận này' });
+        }
+
+        // Lấy nội dung bình luận mới từ body (nếu cần)
+        const updatedCommentContent = req.body.content;
+
+        // Kiểm tra nội dung bình luận không được để trống (nếu cần)
+        if (!updatedCommentContent || updatedCommentContent.trim() === '') {
+            return res.status(400).json({ error: 'Nội dung bình luận không được để trống' });
+        }
+
+        // Cập nhật nội dung comment (nếu cần)
+        if (updatedCommentContent) {
+            comment.content = updatedCommentContent;
+            await comic.save();
+        }
+
+        res.json(comment);
+    } catch (err) {
+        res.status(500).json({ error: 'Error updating comment' });
+    }
+});
+
+// API Xóa Comment theo id truyện và id comment. chỉ có ADMIN hoặc người bình luận MỚi xóa được comment trên sever
 app.delete('/comments/:comicId/:commentId', requireLogin, async(req, res) => {
     const comicId = req.params.comicId;
     const commentId = req.params.commentId;
 
     try {
-        // Kiểm tra xem người dùng đăng nhập có quyền admin hay không
-        // (ví dụ: kiểm tra thông qua session hoặc JWT token)
-        // Ở đây, chúng ta sẽ giả định có một trường isAdmin trong đối tượng user của session
         const isAdmin = req.session.isAdmin;
 
         // Nếu người dùng không phải admin, từ chối yêu cầu xóa bình luận
@@ -374,6 +537,31 @@ app.delete('/comments/:comicId/:commentId', requireLogin, async(req, res) => {
         res.status(500).json({ error: 'Error deleting comment' });
     }
 });
+// API Xóa Comment theo id truyện và id comment. chỉ có ADMIN hoặc người bình luận MỚi xóa được comment dưới client
+app.delete('/comment/:comicId/:commentId', async(req, res) => {
+    const comicId = req.params.comicId;
+    const commentId = req.params.commentId;
+
+    try {
+        // Xóa bình luận dựa trên idcomic và idcomment
+        const comic = await Comic.findById(comicId);
+        if (!comic) {
+            return res.status(404).json({ error: 'Truyện không tồn tại' });
+        }
+        const comment = comic.comments.find((c) => c._id.toString() === commentId);
+        if (!comment) {
+            return res.status(404).json({ error: 'Bình luận không tồn tại' });
+        }
+        // Xóa bình luận khỏi mảng comments của comic
+        comic.comments.pull({ _id: comment._id });
+        await comic.save();
+
+        res.json({ message: 'Bình luận đã được xóa thành công' });
+    } catch (err) {
+        res.status(500).json({ error: 'Error deleting comment' });
+    }
+});
+
 // phân quyền theo id người dùng với vị trí cao nhất là admin
 app.get('/PhanQuyen/:id', requireLogin, async(req, res) => {
     const UserID = req.params.id;
@@ -415,6 +603,24 @@ app.get('/profile', requireLogin, async(req, res) => {
         res.status(500).send('Lỗi khi lấy thông tin người dùng.');
     }
 });
+// API Tìm kiếm truyện theo tên
+app.get('/search/comics', async(req, res) => {
+    try {
+        const searchQuery = req.query.name;
+
+        // Sử dụng MongoDB's $regex để tìm kiếm truyện có tên chứa kí tự tìm kiếm
+        const foundComics = await Comic.find({ name: { $regex: searchQuery, $options: 'i' } });
+
+        if (foundComics.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy truyện' });
+        }
+
+        res.json({ comics: foundComics });
+    } catch (err) {
+        res.status(500).json({ error: 'Lỗi tìm kiếm truyện' });
+    }
+});
+
 
 // Khởi chạy server
 app.listen(PORT, () => {

@@ -13,7 +13,7 @@
         <ImageView
             android:id="@+id/imgcoverImage"
             android:layout_width="200dp"
-            android:layout_height="match_parent" />
+            android:layout_height="300dp" />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -103,6 +103,7 @@
             android:layout_height="wrap_content"
             android:hint="Nhập Bình Luận..."
             android:inputType="textMultiLine"
+            android:textColor="#BD03DD"
             android:maxLines="3" />
 
         <Button
