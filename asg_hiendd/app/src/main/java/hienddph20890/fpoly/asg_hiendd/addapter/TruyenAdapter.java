@@ -44,6 +44,11 @@ public class TruyenAdapter extends RecyclerView.Adapter<TruyenAdapter.ViewHolder
         this.productList = productList;
         this.isAdmin = isAdmin;
     }
+    // Phương thức này dùng để cập nhật danh sách truyện được tìm kiếm trên Adapter
+    public void updateData(List<Truyen> newData) {
+        productList = newData;
+        notifyDataSetChanged();
+    }
     public interface OnItemClickListener {
         void onItemClick(Truyen truyen);
     }
@@ -82,6 +87,12 @@ public class TruyenAdapter extends RecyclerView.Adapter<TruyenAdapter.ViewHolder
                 }
             }
         });
+        if(isAdmin){
+            holder.imgdel.setVisibility(View.VISIBLE);
+        }else {
+            holder.imgdel.setEnabled(false);
+            holder.imgdel.setVisibility(View.INVISIBLE);
+        }
         holder.imgdel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -134,7 +145,7 @@ public class TruyenAdapter extends RecyclerView.Adapter<TruyenAdapter.ViewHolder
             notifyDataSetChanged();
         }
         // Đường dẫn API để xóa truyện
-        String url = "http://192.168.1.8:3000/comics/" + comicId;
+        String url = "http://10.24.54.45:3000/comics/" + comicId;
 
         // Tạo một RequestQueue bằng Volley
         RequestQueue requestQueue = Volley.newRequestQueue(context);

@@ -2,4 +2,9 @@
     <string name="app_name">asg_hiendd</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="app_intro">Chào mừng bạn đến với ứng dụng truyện tranh đặc sắc! Hãy khám phá thế giới truyện tranh tuyệt vời của chúng tôi.</string>
+    <string name="contact_info">Liên hệ Cấp Quyền Tác Giả:</string>
+    <string name="facebook">Facebook</string>
+    <string name="zalo">Zalo</string>
+    <string name="app_logo_description">Logo ứng dụng</string>
 </resources>

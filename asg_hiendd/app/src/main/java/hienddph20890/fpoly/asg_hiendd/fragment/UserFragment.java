@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import hienddph20890.fpoly.asg_hiendd.ChatActivity;
 import hienddph20890.fpoly.asg_hiendd.Login;
 import hienddph20890.fpoly.asg_hiendd.R;
 
@@ -27,6 +29,7 @@ public class UserFragment extends Fragment {
     private TextView userId, userName, userEmail, tvChangePassword,iddangxuat;
     private Handler handler;
     private Runnable dataUpdater;
+    private LinearLayout section3;
 
     public UserFragment() {
         // Required empty public constructor
@@ -47,6 +50,14 @@ public class UserFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        section3 = view.findViewById(R.id.section3);
+        section3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), ChatActivity.class);
+                startActivity(intent);
+            }
+        });
         userId = view.findViewById(R.id.userId);
         userName = view.findViewById(R.id.userName);
         userEmail = view.findViewById(R.id.userEmail);

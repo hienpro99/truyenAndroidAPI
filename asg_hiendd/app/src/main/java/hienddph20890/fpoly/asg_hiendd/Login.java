@@ -8,10 +8,13 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,21 +33,34 @@ public class Login extends AppCompatActivity {
     private EditText userNameInput;
     private TextView userNameError;
     private EditText passwordInput;
-    private TextView passwordError;
     private Button loginButton;
-    private TextView forgotPasswordText;
     private TextView signupText;
+    private CheckBox saveCredentialsCheckbox;
+    private boolean shouldSaveCredentials = false;
+    private SharedPreferences sharedPreferences;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        sharedPreferences = getSharedPreferences("credentials", MODE_PRIVATE);
         userNameInput = findViewById(R.id.userNameInput);
         userNameError = findViewById(R.id.userNameError);
         passwordInput = findViewById(R.id.passwordInput);
-        passwordError = findViewById(R.id.passwordError);
         loginButton = findViewById(R.id.loginButton);
-        forgotPasswordText = findViewById(R.id.forgotPasswordText);
+        saveCredentialsCheckbox = findViewById(R.id.saveCredentialsCheckbox);
+
+        // Check if there are saved credentials and update the checkbox accordingly
+        shouldSaveCredentials = sharedPreferences.contains("username") && sharedPreferences.contains("password");
+        saveCredentialsCheckbox.setChecked(shouldSaveCredentials);
+        saveCredentialsCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // Lưu trạng thái lựa chọn của người dùng
+                shouldSaveCredentials = isChecked;
+            }
+        });
+        loadSavedCredentials();
         TextView textView = findViewById(R.id.textView);
 
 // Hiệu ứng nhấp nháy (alpha)
@@ -78,8 +94,21 @@ public class Login extends AppCompatActivity {
                 // Lấy thông tin đăng nhập từ người dùng
                 String username = userNameInput.getText().toString();
                 String password = passwordInput.getText().toString();
-
-                String loginUrl = "http://192.168.1.8:3000/login";
+                // Kiểm tra nếu có tài khoản cũ trong SharedPreferences thì xóa nó
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove("username");
+                editor.remove("password");
+                if (shouldSaveCredentials && !username.isEmpty() && !password.isEmpty()) {
+                    // Nếu checkbox được chọn và người dùng đã nhập thông tin đăng nhập
+                    // Lưu tài khoản mới vào SharedPreferences
+                    editor.putString("username", username);
+                    editor.putString("password", password);
+                    editor.apply();
+                } else {
+                    editor.apply();
+                    Toast.makeText(Login.this, "Tài khoản đăng nhập không được lưu.", Toast.LENGTH_SHORT).show();
+                }
+                String loginUrl = "http://10.24.54.45:3000/login";
 
                 JSONObject jsonParams = new JSONObject();
                 try {
@@ -135,5 +164,12 @@ public class Login extends AppCompatActivity {
 
     private void showLoginError(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+    private void loadSavedCredentials() {
+        String savedUsername = sharedPreferences.getString("username", "");
+        String savedPassword = sharedPreferences.getString("password", "");
+
+        userNameInput.setText(savedUsername);
+        passwordInput.setText(savedPassword);
     }
 }

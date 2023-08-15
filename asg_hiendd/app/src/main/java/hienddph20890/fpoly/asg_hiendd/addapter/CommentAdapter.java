@@ -98,6 +98,11 @@ public class CommentAdapter extends BaseAdapter {
                 }
             }
         });
+        if (isAdmin || comment.getUserId().equals(userId)){
+            viewHolder.imgdel.setVisibility(View.VISIBLE);
+        }else {
+            viewHolder.imgdel.setVisibility(View.INVISIBLE);
+        }
         viewHolder.imgdel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -144,7 +149,7 @@ public class CommentAdapter extends BaseAdapter {
             commentList.remove(position);
             notifyDataSetChanged();
         }
-        String url = "http://192.168.1.8:3000/comment/" + comicId + "/" + commentId;
+        String url = "http://10.24.54.45:3000/comment/" + comicId + "/" + commentId;
 
         JsonObjectRequest deleteRequest = new JsonObjectRequest(Request.Method.DELETE, url, null,
                 new Response.Listener<JSONObject>() {

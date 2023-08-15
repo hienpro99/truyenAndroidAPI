@@ -49,7 +49,7 @@ public class HomeFragment extends Fragment {
     TruyenHomeAdapter truyenHomeAdapter;
     private List<Truyen> productList;
     private ViewPager viewPager;
-    private static final long INTERVAL_IN_MILLISECONDS = 60000; // 1 phút
+    private static final long INTERVAL_IN_MILLISECONDS = 10000; // 1 phút
     private static final long INITIAL_DELAY_IN_MILLISECONDS = 0; // Không có độ trễ ban đầu
     private Handler handler = new Handler();
     private Runnable updateTask = new Runnable() {
@@ -81,6 +81,8 @@ public class HomeFragment extends Fragment {
         viewFlipper = view.findViewById(R.id.viewlipper);
         ActionViewFlipper();
         idRCVH = view.findViewById(R.id.idRCVH);
+        viewPager = getActivity().findViewById(R.id.viewPager);
+        viewPager.setVisibility(View.VISIBLE);
         // Thay đổi LinearLayoutManager thành LinearLayoutManager với hướng ngang (horizontal)
         idRCVH.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         productList = new ArrayList<>();
@@ -111,11 +113,14 @@ public class HomeFragment extends Fragment {
         Bundle bundle = new Bundle();
         bundle.putSerializable("truyen", truyen);
         bundle.putString("comicId", truyen.getId());
+        Toast.makeText(getContext(), "id truyen"+ truyen.getId(), Toast.LENGTH_SHORT).show();
         // Lấy dữ liệu người dùng từ arguments của SearchFragment
         Bundle searchFragmentBundle = getArguments();
         if (searchFragmentBundle != null) {
             String userId = searchFragmentBundle.getString("userId");
             String userFullname = searchFragmentBundle.getString("userFullname");
+            Boolean isAdmin = getArguments().getBoolean("isAdmin");
+            bundle.putBoolean("isAdmin", isAdmin);
             bundle.putString("userId", userId);
             bundle.putString("userFullname", userFullname);
         }
@@ -129,7 +134,7 @@ public class HomeFragment extends Fragment {
     }
     private void dataproduct() {
         RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-         String URL_GET_SP = "http://192.168.1.8:3000/comics";
+         String URL_GET_SP = "http://10.24.54.45:3000/comics";
         JsonObjectRequest objectRequest = new JsonObjectRequest(Request.Method.GET, URL_GET_SP, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -183,7 +188,8 @@ public class HomeFragment extends Fragment {
         mangquangcao.add("https://skdesu.com/wp-content/uploads/2022/05/image-2.jpg");
         mangquangcao.add("https://phuongnamvina.com/img_data/images/kich-thuoc-banner-web-chuan.jpg");
         mangquangcao.add("https://toquoc.mediacdn.vn/280518851207290880/2022/7/26/banner141200x628-16587434648621017256903-1658811001657-16588110017811422256770.png");
-
+        mangquangcao.add("https://cdn-www.bluestacks.com/bs-images/chien-binh-truyen-thuyet-launch-news-vi-banner.jpeg");
+        mangquangcao.add("https://truyenvua.com/14411/3/0_81loi.jpg?gt=hdfgdfg&mobile=2");
         for (int i = 0; i < mangquangcao.size(); i++) {
             ImageView imageView = new ImageView(getContext());
             Glide.with(getContext()).load(mangquangcao.get(i)).into(imageView);

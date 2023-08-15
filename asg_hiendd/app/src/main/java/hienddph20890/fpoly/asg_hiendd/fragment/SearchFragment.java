@@ -14,12 +14,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -43,6 +46,9 @@ import hienddph20890.fpoly.asg_hiendd.addapter.TruyenAdapter;
 import hienddph20890.fpoly.asg_hiendd.model.Truyen;
 
 public class SearchFragment extends Fragment {
+    //Search
+    private EditText etSearch;
+    //
     //add
     private SelectedImageAdapter adapter; // Khai báo Adapter mới
     private List<String> selectedImages = new ArrayList<>();
@@ -53,9 +59,9 @@ public class SearchFragment extends Fragment {
     private List<Truyen> productList;
     private TruyenAdapter truyenAdapter;
     private ViewPager viewPager;
-    private String URL_GET_SP = "http://192.168.1.8:3000/comics";
+    private String URL_GET_SP = "http://10.24.54.45:3000/comics";
     //
-    private static final long INTERVAL_IN_MILLISECONDS = 60000; // 1 phút
+    private static final long INTERVAL_IN_MILLISECONDS = 10000; // 1 phút
     private static final long INITIAL_DELAY_IN_MILLISECONDS = 0; // Không có độ trễ ban đầu
     private Handler handler = new Handler();
     private Runnable updateTask = new Runnable() {
@@ -83,6 +89,34 @@ public class SearchFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        // Search
+        ImageView ivsearch = view.findViewById(R.id.ivsearch);
+        ivsearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etSearch.setVisibility(View.VISIBLE);
+                String searchQuery = etSearch.getText().toString().trim();
+                performSearch(searchQuery);
+            }
+        });
+        etSearch = view.findViewById(R.id.etSearch);
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                // Thực hiện tìm kiếm khi người dùng nhập liệu và mỗi lần nội dung thay đổi
+                String searchQuery = charSequence.toString().trim();
+                performSearch(searchQuery);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+        //end search
         Boolean isAdmin = getArguments().getBoolean("isAdmin");
         idRCV = view.findViewById(R.id.idRCV);
         idRCV.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -111,11 +145,33 @@ public class SearchFragment extends Fragment {
         // bắt đầu cập nhật khi ưứng dunụng chạy
         handler.postDelayed(updateTask, INITIAL_DELAY_IN_MILLISECONDS);
     }
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Reset danh sách truyện trên Adapter khi quay lại tab search
+        truyenAdapter.updateData(productList);
+    }
+
+    private void performSearch(String searchQuery) {
+        // Tạo một danh sách mới để lưu các truyện trùng khớp
+        List<Truyen> matchedTruyenList = new ArrayList<>();
+
+        // Lặp qua danh sách truyện hiện có để tìm kiếm các truyện trùng khớp với searchQuery
+        for (Truyen truyen : productList) {
+            if (truyen.getName().toLowerCase().contains(searchQuery.toLowerCase())) {
+                // Nếu tên truyện chứa searchQuery, thì thêm vào danh sách trùng khớp
+                matchedTruyenList.add(truyen);
+            }
+        }
+
+        // Cập nhật danh sách truyện trên Adapter để hiển thị các truyện trùng khớp
+        truyenAdapter.updateData(matchedTruyenList);
+    }
+
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // Stop the update task when the fragment is destroyed
         handler.removeCallbacks(updateTask);
     }
 
@@ -242,7 +298,7 @@ public class SearchFragment extends Fragment {
 
 
     private void addComicWithImageUrl(String name, String description, String author, int yearPublished, List<String> selectedImages) {
-        String url = "http://192.168.1.8:3000/comic"; // Thay thế bằng API endpoint của bạn
+        String url = "http://10.24.54.45:3000/comic"; // Thay thế bằng API endpoint của bạn
         RequestQueue requestQueue = Volley.newRequestQueue(getContext());
 
         try {

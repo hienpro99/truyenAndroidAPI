@@ -6,6 +6,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +33,16 @@ public class CartFragment extends Fragment {
     private RecyclerView recyclerView;
     private UserAdapter userAdapter;
     private List<User> userList;
+    private static final long INTERVAL_IN_MILLISECONDS = 10000; // 1 phút
+    private static final long INITIAL_DELAY_IN_MILLISECONDS = 0; // Không có độ trễ ban đầu
+    private Handler handler = new Handler();
+    private Runnable updateTask = new Runnable() {
+        @Override
+        public void run() {
+            getUsersFromApi();
+            handler.postDelayed(this, INTERVAL_IN_MILLISECONDS);
+        }
+    };
 
     public CartFragment() {
         // Required empty public constructor
@@ -56,7 +68,6 @@ public class CartFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         recyclerView = view.findViewById(R.id.idrcv);
         recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         userList = new ArrayList<>();
@@ -65,10 +76,17 @@ public class CartFragment extends Fragment {
 
         // Gọi API để lấy danh sách người dùng
         getUsersFromApi();
+        handler.postDelayed(updateTask, INITIAL_DELAY_IN_MILLISECONDS);
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Stop the update task when the fragment is destroyed
+        handler.removeCallbacks(updateTask);
+    }
     private void getUsersFromApi() {
-        String url = "http://192.168.1.8:3000/listusers";
+        String url = "http://10.24.54.45:3000/listusers";
 
         JsonObjectRequest getRequest = new JsonObjectRequest(
                 Request.Method.GET,
@@ -89,8 +107,9 @@ public class CartFragment extends Fragment {
                                 String userId = userObject.getString("_id");
                                 String username = userObject.getString("username");
                                 String fullname = userObject.getString("fullname");
-
-                                User user = new User(userId, username, fullname);
+                                String email = userObject.getString("email");
+                                Boolean Admin = userObject.getBoolean("admin");
+                                User user = new User(userId, username, fullname,email,Admin);
                                 userList.add(user);
                             }
 

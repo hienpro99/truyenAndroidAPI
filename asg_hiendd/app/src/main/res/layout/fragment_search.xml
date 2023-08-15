@@ -27,11 +27,12 @@
           android:imeOptions="actionSearch"
           android:inputType="text"
           android:textColor="@color/black"
+          android:visibility="invisible"
           android:maxLines="1"
           android:singleLine="true" />
 
       <ImageView
-          android:id="@+id/ivSearch"
+          android:id="@+id/ivsearch"
           android:layout_width="50dp"
           android:layout_height="50dp"
           android:layout_gravity="center_vertical"

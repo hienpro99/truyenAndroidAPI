@@ -3,17 +3,31 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#E4A0A0"
+    android:background="#FFC107"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="350dp"
         android:orientation="horizontal">
-        <ImageView
-            android:id="@+id/imgcoverImage"
-            android:layout_width="200dp"
-            android:layout_height="300dp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#2196F3"
+            android:orientation="vertical">
+            <ImageView
+                android:id="@+id/imgcoverImage"
+                android:layout_width="200dp"
+                android:layout_height="300dp" />
+            <ImageView
+                android:id="@+id/imvEdit"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/img_4"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -65,7 +79,7 @@
             android:textSize="34sp"
             android:layout_margin="8dp"
             android:textStyle="bold"
-            android:background="#DFCA0D"
+            android:background="#E61708"
             android:text="Bình Luận" />
         <Button
             android:id="@+id/btnViewTruyen"

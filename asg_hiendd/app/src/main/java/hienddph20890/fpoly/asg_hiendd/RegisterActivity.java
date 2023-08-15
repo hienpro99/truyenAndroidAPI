@@ -69,7 +69,7 @@ public class RegisterActivity extends AppCompatActivity {
                 }
 
                 // Gửi yêu cầu đăng ký thông qua API sử dụng Volley
-                String registerUrl = "http://192.168.1.8:3000/register";
+                String registerUrl = "http://10.24.54.45:3000/register";
                 RequestQueue requestQueue = Volley.newRequestQueue(RegisterActivity.this);
                 JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, registerUrl, jsonParams,
                         new Response.Listener<JSONObject>() {

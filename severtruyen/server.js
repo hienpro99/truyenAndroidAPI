@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -290,7 +289,7 @@ app.get('/comics/:id', async(req, res) => {
         res.status(500).json({ error: 'Error fetching comic' });
     }
 });
-// API Sửa truyện theo id
+// API Sửa truyện theo id truyện trên server
 app.put('/comics/:id', upload.array('comicImages'), async(req, res) => {
     try {
         const comicId = req.params.id;
@@ -322,6 +321,41 @@ app.put('/comics/:id', upload.array('comicImages'), async(req, res) => {
         existingComic.author = author || existingComic.author;
         existingComic.yearPublished = yearPublished || existingComic.yearPublished;
 
+        const updatedComic = await existingComic.save();
+        res.status(200).json(updatedComic);
+    } catch (error) {
+        res.status(500).json({ error: 'Cập nhật truyện tranh thất bại' });
+    }
+});
+//api sửa truyện theo id truyện clent 
+app.put('/comic/:id', async(req, res) => {
+    try {
+        const comicId = req.params.id;
+        const { name, description, author, yearPublished, images } = req.body;
+
+        // Tìm truyện tranh đã tồn tại trong cơ sở dữ liệu dựa trên id truyện
+        const existingComic = await Comic.findById(comicId);
+        if (!existingComic) {
+            return res.status(404).json({ error: 'Không tìm thấy truyện tranh' });
+        }
+
+        // Cập nhật các trường thông tin truyện tranh từ request body
+        existingComic.name = name;
+        existingComic.description = description;
+        existingComic.author = author;
+        existingComic.yearPublished = yearPublished;
+
+        // Nếu có ảnh bìa mới được cung cấp, cập nhật trường coverImage
+        if (images && images.length > 0) {
+            existingComic.coverImage = images[0];
+        }
+
+        // Nếu có danh sách ảnh truyện tranh mới được cung cấp, cập nhật trường images
+        if (images && images.length > 1) {
+            existingComic.images = images;
+        }
+
+        // Lưu truyện tranh đã được cập nhật vào cơ sở dữ liệu
         const updatedComic = await existingComic.save();
         res.status(200).json(updatedComic);
     } catch (error) {
@@ -562,7 +596,7 @@ app.delete('/comment/:comicId/:commentId', async(req, res) => {
     }
 });
 
-// phân quyền theo id người dùng với vị trí cao nhất là admin
+// phân quyền theo id người dùng với vị trí cao nhất là admin trên server
 app.get('/PhanQuyen/:id', requireLogin, async(req, res) => {
     const UserID = req.params.id;
     const user = await User.findById(UserID);
@@ -578,6 +612,25 @@ app.get('/PhanQuyen/:id', requireLogin, async(req, res) => {
         return res.status(403).json({ error: 'Bạn không có quyền dùng chức năng này' });
     }
 
+    // Thông tin sửa đổi
+    const updateData = {
+        $set: {
+            admin: true,
+        }
+    };
+    // Cập nhật quyền và chuyển hướng trở lại
+    await User.updateOne({ _id: UserID }, updateData).exec();
+    res.json({ user, msg: 'Phân quyền thành công' })
+});
+// phân quyền theo id người dùng với vị trí cao nhất là admin dùng dưới client
+app.get('/PhanQuyens/:id', async(req, res) => {
+    const UserID = req.params.id;
+    const user = await User.findById(UserID);
+
+    // Kiểm tra nếu không tìm thấy uer
+    if (!user) {
+        return res.status(404).send('Người dùng không tồn tại.');
+    }
     // Thông tin sửa đổi
     const updateData = {
         $set: {
@@ -621,8 +674,35 @@ app.get('/search/comics', async(req, res) => {
     }
 });
 
+const http = require('http');
+const socketIO = require('socket.io');
+const server = http.createServer(app);
+const io = socketIO(server);
+const connectedUsers = [];
+
+io.on('connection', (socket) => {
+    console.log('A user connected');
+
+
+    connectedUsers.push(socket);
+
+
+    socket.on('sendMessage', (data) => {
+        console.log('Received message:', data);
+        socket.broadcast.emit('receiveMessage', data);
+    });
+
+    socket.on('disconnect', () => {
+        console.log('A user disconnected');
+
+        const index = connectedUsers.indexOf(socket);
+        if (index !== -1) {
+            connectedUsers.splice(index, 1);
+        }
+    });
+});
 
 // Khởi chạy server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

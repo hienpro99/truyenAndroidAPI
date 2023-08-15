@@ -13,6 +13,7 @@ import hienddph20890.fpoly.asg_hiendd.fragment.CartFragment;
 import hienddph20890.fpoly.asg_hiendd.fragment.HomeFragment;
 import hienddph20890.fpoly.asg_hiendd.fragment.SearchFragment;
 import hienddph20890.fpoly.asg_hiendd.fragment.UserFragment;
+import hienddph20890.fpoly.asg_hiendd.fragment.introFragment;
 
 public class TabAdapter extends FragmentPagerAdapter {
     private Bundle userData; // Dữ liệu người dùng
@@ -26,7 +27,7 @@ public class TabAdapter extends FragmentPagerAdapter {
         super(fragmentManager);
         this.userData = userData;
         if (userData != null) {
-            this.isAdmin = userData.getBoolean("isAdmin", false);
+            this.isAdmin = userData.getBoolean("isAdmin");
         }
     }
 
@@ -51,11 +52,17 @@ public class TabAdapter extends FragmentPagerAdapter {
                 }
                 break;
             case 2:
-                fragment = new CartFragment();
+                if (isAdmin) {
+                    fragment = new CartFragment();
+                } else {
+                    fragment = new introFragment();
+                }
                 if (userData != null) {
                     // Chỉ đặt dữ liệu cho SearchFragment
                     fragment.setArguments(userData);
                 }
+
+
                 break;
             case 3:
                 fragment = new UserFragment();
@@ -88,7 +95,7 @@ public class TabAdapter extends FragmentPagerAdapter {
             case 1:
                 return "Tìm Kiếm";
             case 2:
-                return "Giỏ Hàng";
+                return "HO";
             case 3:
                 return "Tài Khoản";
             default:

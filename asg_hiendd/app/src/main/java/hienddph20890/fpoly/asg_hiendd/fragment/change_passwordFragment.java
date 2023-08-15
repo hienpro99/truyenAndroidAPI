@@ -1,5 +1,6 @@
 package hienddph20890.fpoly.asg_hiendd.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.OnBackPressedCallback;
@@ -27,6 +28,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import hienddph20890.fpoly.asg_hiendd.Login;
 import hienddph20890.fpoly.asg_hiendd.R;
 
 public class change_passwordFragment extends Fragment {
@@ -101,12 +103,12 @@ public class change_passwordFragment extends Fragment {
 
                     // Kiểm tra xem mật khẩu mới và xác nhận mật khẩu mới có khớp nhau không
                     if (!newPassword.equals(confirmPassword)) {
-                        etConfirmPassword.setError("Xác nhận mật khẩu mới không khớp");
+                        etConfirmPassword.setError("Mật Khẩu hoặc Xác nhận mật khẩu mới không khớp");
                         return;
                     }
 
                     // Gọi API đổi mật khẩu
-                    String url = "http://192.168.1.8:3000/changepasswords";
+                    String url = "http://10.24.54.45:3000/changepasswords";
                     JSONObject requestBody = new JSONObject();
                     try {
                         requestBody.put("userId", userIdValue);
@@ -136,7 +138,6 @@ public class change_passwordFragment extends Fragment {
                                 public void onErrorResponse(VolleyError error) {
                                     // Xử lý khi có lỗi từ server
                                     Toast.makeText(getContext(), "Mật khẩu cũ hoặc mật khẩu mới không đúng ", Toast.LENGTH_SHORT).show();
-                                    goBackToUserFragment();
                                 }
                             });
 
@@ -150,18 +151,19 @@ public class change_passwordFragment extends Fragment {
     // Phương thức để quay lại Fragment User sau khi đổi mật khẩu thành công
     private void goBackToUserFragment() {
         if (getActivity() != null) {
-            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-            // Tạo một instance của Fragment User
-            UserFragment userFragment = UserFragment.newInstance();
-
-            // Thực hiện thay thế Fragment hiện tại bằng Fragment User và đưa Fragment cũ vào BackStack
-            fragmentTransaction.replace(R.id.fragment_container, userFragment);
-            fragmentTransaction.addToBackStack(null);
-
-            // Submit thay đổi
-            fragmentTransaction.commit();
+//            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//
+//            // Tạo một instance của Fragment User
+//            UserFragment userFragment = UserFragment.newInstance();
+//            // Thực hiện thay thế Fragment hiện tại bằng Fragment User và đưa Fragment cũ vào BackStack
+//            fragmentTransaction.replace(R.id.fragment_container, userFragment);
+//            fragmentTransaction.addToBackStack(null);
+//
+//            // Submit thay đổi
+//            fragmentTransaction.commit();
+            Intent intent = new Intent(getContext(), Login.class);
+            startActivity(intent);
         }
     }
 
