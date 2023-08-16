@@ -1,0 +1,37 @@
+Dự án 2: ManGa Toon
+
+
+Phần 1: 
+Xây dựng API server cho ứng dụng đọc truyện tranh bằng nodejs bao gồm các resource: Truyện tranh, Bình luận, Người dùng
+
+- Thông tin truyện tranh gồm: Tên truyện, mô tả ngắn, tên tác giả, năm xuất bản, ảnh bìa, danh sách các ảnh nội dung truyện. 
+- Người dùng: username, password, email, fullname
+- Bình luận: id truyện, id người dùng, nội dung, ngày giờ bình luận
+- Với các API:
+•	GET: Lấy danh sách truyện/xem chi tiết truyện/đọc truyện/Quản lý người dùng(Admin)
+•	PUT: Sửa truyện
+•	POST: Đăng ký tài khoản/ đăng nhập
+•	GET: Lấy danh sách bình luận theo ID truyện (hiển thị vào trang chi tiết truyện) 
+•	POST: Gửi bình luận cho truyện
+•	Del: Xóa Bình luận truyện
+•	Put: Sửa Bình luận truyện
+•	get: Phân Quyền admin để thêm truyện(tác giả)
+Phần 2:
+Xây dựng app android thực hiện kết nối API
+- Có màn hình chào
+- Sau màn hình chào là đăng nhập/đăng ký
+- Sau khi đăng nhập thì vào màn hình danh sách truyện,
+ bấm xem truyện thì hiển thị thông tin chi tiết về truyện
+ có phần hiển thị bình luận bên dưới.
+ Có nút đọc truyện, khi bấm vào thì mở màn hình hiển thị 
+danh sách ảnh nội dung truyện để người dùng đọc
+ Có nút sửa truyện và xóa truyện, sử dụng cho admin
+ có chức năng quản lý người dùng và phân quyền để thêm sửa xóa các chức năng
+(->đây là Tài khoản đã tạo với vai trò là admin>)
+
+username
+"hienddph20890"
+password
+"zzzzzz"
+
+
